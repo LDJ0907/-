@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>牛马计算器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+        }
+        body {
+            background: #f7f8fa;
+            padding: 30px 16px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 28px;
+        }
+        /* 左侧表单卡片 */
+        .box {
+            flex: 1;
+            min-width: 420px;
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+        /* 右侧结果卡片 */
+        .result-box {
+            flex: 0 0 380px;
+            min-width: 340px;
+            display: flex;
+            flex-direction: column;
+        }
+        .title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 32px;
+            color: #222;
+            letter-spacing: 1px;
+        }
+        /* 分组标题 */
+        .section-title {
+            font-size: 17px;
+            font-weight: 600;
+            color: #333;
+            margin: 30px 0 14px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        /* 双列布局 */
+        .row-two {
+            display: flex;
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+        .row-two .item {
+            flex: 1;
+        }
+        /* 表单项 */
+        .item {
+            margin-bottom: 22px;
+        }
+        .item label {
+            display: block;
+            margin-bottom: 8px;
+            color: #444;
+            font-weight: 500;
+            font-size: 15px;
+        }
+        .item select,
+        .item input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #e5e6eb;
+            border-radius: 8px;
+            font-size: 15px;
+            background: #fff;
+            transition: all 0.2s;
+        }
+        .item select:focus,
+        .item input:focus {
+            border-color: #409eff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.1);
+        }
+        /* 多选框组 */
+        .checkbox-group,
+        .multi-checkbox-group {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+        /* 按钮 */
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: #409eff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background: #338eef;
+        }
+        /* 结果区域 */
+        .result {
+            flex: 1;
+            padding: 32px 24px;
+            background: #ffffff;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+        .result h3 {
+            margin-bottom: 24px;
+            color: #222;
+            text-align: left;
+            font-size: 22px;
+            font-weight: bold;
+        }
+        .line {
+            margin: 12px 0;
+            color: #444;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px dashed #f0f0f0;
+        }
+        .num {
+            color: #409eff;
+            font-weight: bold;
+            font-size: 17px;
+        }
+        /* 评语 */
+        .tip {
+            margin-top: 25px;
+            padding: 20px;
+            background: #e8f3ff;
+            border-radius: 12px;
+            color: #2f54eb;
+            text-align: left;
+            font-size: 19px;
+            font-weight: 500;
+            line-height: 1.5;
+            box-shadow: 0 2px 8px rgba(64, 158, 255, 0.15);
+        }
+        /* 评分标准 */
+        .score-standard {
+            margin-top: 12px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-size: 14px;
+            line-height: 1.7;
+            color: #555;
+            text-align: left;
+        }
+        .score-standard h4 {
+            font-size: 15px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        /* 移动端适配 */
+        @media (max-width: 900px) {
+            .container {
+                flex-direction: column;
+                gap: 24px;
+            }
+            .box, .result-box {
+                min-width: 100%;
+            }
+            .row-two {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 左侧选项区域 -->
+    <div class="box">
+        <div class="title">🐮🐎 牛马计算器</div>
+        <!-- 学历/学校 -->
+        <div class="row-two">
+            <div class="item">
+                <label>学位类型</label>
+                <select id="degree">
+                    <option value="本科">本科</option>
+                    <option value="专科">专科</option>
+                    <option value="硕士">硕士</option>
+                    <option value="博士">博士</option>
+                </select>
+            </div>
+            <div class="item">
+                <label>学校类型</label>
+                <select id="schoolType">
+                    <option value="双非/QS200/USnews80">双非/QS200/USnews80</option>
+                    <option value="985/211">985/211</option>
+                    <option value="海外名校">海外名校</option>
+                </select>
+            </div>
+        </div>
+        <!-- 工作年限 -->
+        <div class="item">
+            <label>工作年限</label>
+            <select id="workYear">
+                <option value="应届生">应届生</option>
+                <option value="1-3年">1-3年</option>
+                <option value="3-5年">3-5年</option>
+                <option value="5-10年">5-10年</option>
+                <option value="10年以上">10年以上</option>
+            </select>
+        </div>
+        <!-- 薪资基础信息 -->
+        <div class="row-two">
+            <div class="item">
+                <label>月税前工资（元）</label>
+                <input type="number" id="salary" placeholder="请输入">
+            </div>
+            <div class="item">
+                <label>每天工作时长（小时）</label>
+                <input type="number" id="workHour" placeholder="请输入" step="0.5">
+            </div>
+        </div>
+        <div class="row-two">
+            <div class="item">
+                <label>每周工作天数</label>
+                <input type="number" id="workDay" placeholder="请输入" value="5" min="1" max="7">
+            </div>
+            <div class="item">
+                <label>每天通勤总时长（小时）</label>
+                <input type="number" id="commuteHour" placeholder="请输入" step="0.5">
+            </div>
+        </div>
+        <div class="row-two">
+            <div class="item">
+                <label>每天通勤费用（元）</label>
+                <input type="number" id="commuteCost" placeholder="请输入">
+            </div>
+            <div class="item">
+                <label>每天吃饭费用（元）</label>
+                <input type="number" id="foodCost" placeholder="请输入" value="0">
+            </div>
+        </div>
+        <div class="row-two">
+            <div class="item">
+                <label>是否租房</label>
+                <select id="isRent">
+                    <option value="否">否</option>
+                    <option value="是">是</option>
+                </select>
+            </div>
+            <div class="item">
+                <label>每月房租（元）</label>
+                <input type="number" id="rent" placeholder="不租房填0" value="0">
+            </div>
+        </div>
+        <!-- 每月其他固定支出 -->
+        <div class="item">
+            <label>每月其他固定支出（话费/网费/购物等）</label>
+            <input type="number" id="otherCost" placeholder="没有填0" value="0">
+        </div>
+
+        <!-- 五险一金 -->
+        <div class="item">
+            <label class="section-title">五险一金</label>
+            <select id="insurance">
+                <option value="没有">没有</option>
+                <option value="五险">五险</option>
+                <option value="五险一金" selected>五险一金</option>
+            </select>
+        </div>
+        <!-- 职业稳定度 -->
+        <div class="item">
+            <label class="section-title">职业稳定度</label>
+            <select id="jobType">
+                <option value="政府/事业单位">政府/事业单位</option>
+                <option value="国企/大型企业">国企/大型企业</option>
+                <option value="外企/守法企业">外企/守法企业</option>
+                <option value="私企/狼性文化" selected>私企/狼性文化</option>
+                <option value="劳务派遣/OD">劳务派遣/OD</option>
+                <option value="自由职业">自由职业</option>
+            </select>
+        </div>
+        <!-- 工作环境 -->
+        <div class="item">
+            <label class="section-title">工作环境</label>
+            <select id="workEnv">
+                <option value="偏僻的工厂/工地/户外">偏僻的工厂/工地/户外</option>
+                <option value="工厂/工地/户外">工厂/工地/户外</option>
+                <option value="普通环境" selected>普通环境</option>
+                <option value="CBD">CBD</option>
+            </select>
+        </div>
+        <!-- 工作压力系数 -->
+        <div class="item">
+            <label class="section-title">工作压力系数</label>
+            <select id="pressure">
+                <option value="极小">极小</option>
+                <option value="适中" selected>适中</option>
+                <option value="较大">较大</option>
+                <option value="极大">极大</option>
+            </select>
+        </div>
+        <!-- 异性环境系数 -->
+        <div class="item">
+            <label class="section-title">异性环境系数</label>
+            <select id="genderRatio">
+                <option value="几乎没有">几乎没有</option>
+                <option value="少量" selected>少量</option>
+                <option value="适中">适中</option>
+                <option value="很多">很多</option>
+            </select>
+        </div>
+        <!-- 有无加班费 -->
+        <div class="item">
+            <label class="section-title">有无加班费</label>
+            <select id="overtimePay">
+                <option value="有">有加班费</option>
+                <option value="无" selected>无加班费</option>
+            </select>
+        </div>
+        <!-- 所在城市 -->
+        <div class="item">
+            <label class="section-title">所在城市（按生活成本选择）</label>
+            <select id="city">
+                <option value="一线城市">一线城市</option>
+                <option value="新一线">新一线</option>
+                <option value="二线城市" selected>二线城市</option>
+                <option value="三线城市">三线城市</option>
+                <option value="四线城市">四线城市</option>
+                <option value="县城">县城</option>
+                <option value="乡镇">乡镇</option>
+            </select>
+        </div>
+        <!-- 是否在家乡 -->
+        <div class="item">
+            <label class="section-title">是否在家乡工作</label>
+            <select id="hometown">
+                <option value="不在家乡" selected>不在家乡</option>
+                <option value="在家乡">在家乡</option>
+            </select>
+        </div>
+        <!-- 领导/老板 -->
+        <div class="item">
+            <label class="section-title">领导/老板</label>
+            <select id="boss">
+                <option value="对我不爽">对我不爽</option>
+                <option value="管理严格">管理严格</option>
+                <option value="中规中矩" selected>中规中矩</option>
+                <option value="善解人意">善解人意</option>
+            </select>
+        </div>
+        <!-- 同事环境 -->
+        <div class="item">
+            <label class="section-title">同事环境</label>
+            <select id="colleague">
+                <option value="都是傻逼">都是傻逼</option>
+                <option value="萍水相逢" selected>萍水相逢</option>
+                <option value="和和睦睦">和和睦睦</option>
+                <option value="私交甚好">私交甚好</option>
+            </select>
+        </div>
+
+        <!-- 是否8:30前上班 -->
+        <div class="item">
+            <label class="section-title">是否8:30前上班</label>
+            <select id="earlyWork">
+                <option value="否" selected>否</option>
+                <option value="是">是</option>
+            </select>
+        </div>
+        <!-- 是否经常加班 -->
+        <div class="item">
+            <label class="section-title">是否经常加班</label>
+            <select id="overtime">
+                <option value="经常">经常</option>
+                <option value="偶尔">偶尔</option>
+                <option value="从不" selected>从不</option>
+            </select>
+        </div>
+        <!-- 摸鱼时长 -->
+        <div class="item">
+            <label>摸鱼时长（小时/天）</label>
+            <input type="number" id="fishHour" value="4" step="0.5" min="0">
+        </div>
+        <!-- 每天休息&午休时间 -->
+        <div class="item">
+            <label>每天休息&午休时间（小时）</label>
+            <select id="restHour">
+                <option value="0.5">0.5小时</option>
+                <option value="1">1小时</option>
+                <option value="1.5" selected>1.5小时</option>
+                <option value="2">2小时</option>
+                <option value="2.5">2.5小时</option>
+                <option value="3">3小时</option>
+            </select>
+        </div>
+        <!-- 公司福利（可多选） -->
+        <div class="item">
+            <label class="section-title">公司福利（可多选）</label>
+            <div class="multi-checkbox-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="welfare1" value="班车服务">
+                    <label for="welfare1">班车服务</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="welfare2" value="补充医疗">
+                    <label for="welfare2">补充医疗</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="welfare3" value="年假">
+                    <label for="welfare3">年假</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="welfare4" value="弹性工作">
+                    <label for="welfare4">弹性工作</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="welfare5" value="股票期权">
+                    <label for="welfare5">股票期权</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="welfare6" value="培训机会">
+                    <label for="welfare6">培训机会</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="welfare7" value="餐补">
+                    <label for="welfare7">餐补</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="welfare8" value="交通补贴">
+                    <label for="welfare8">交通补贴</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="welfare9" value="健身房">
+                    <label for="welfare9">健身房</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="checkbox" id="welfare10" value="团建活动">
+                    <label for="welfare10">团建活动</label>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn" onclick="calc()">开始计算</button>
+    </div>
+
+    <!-- 右侧结果区域 -->
+    <div class="result-box">
+        <div class="result" id="result">
+            <h3>📊 牛马综合评分</h3>
+            <div class="line">基础时薪：<span class="num" id="a">0</span> 元/小时</div>
+            <div class="line">月总工作时长：<span class="num" id="b">0</span> 小时</div>
+            <div class="line">实际时薪（含所有支出）：<span class="num" id="c">0</span> 元/小时</div>
+            <div class="line">通勤成本占比：<span class="num" id="d">0</span> %</div>
+            <div class="line">牛马综合评分：<span class="num" id="e">0</span> 分</div>
+            
+            <div class="tip" id="tip"></div>
+
+            <!-- 评分标准 -->
+            <div class="score-standard">
+                <h4>📌 评分标准</h4>
+                85分及以上：牛马中的人上人，这班还能上<br>
+                70-84分：普通牛马，凑合过日子<br>
+                55-69分：标准牛马，不亏不赚<br>
+                40-54分：纯纯牛马，这班太折磨了<br>
+                40分以下：顶级牛马，快跑！
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 获取选中的值 (下拉框专用)
+function getSelectVal(id) {
+    const sel = document.getElementById(id);
+    return sel.options[sel.selectedIndex].value;
+}
+// 计算福利加分
+function getWelfareScore() {
+    let score = 0
+    const ids = ['welfare1','welfare2','welfare3','welfare4','welfare5','welfare6','welfare7','welfare8','welfare9','welfare10']
+    ids.forEach(id => {
+        if (document.getElementById(id).checked) score += 1
+    })
+    return Math.min(5, score)
+}
+// 打分逻辑
+function calc() {
+    let salary = Number(document.getElementById('salary').value) || 0
+    let workHour = Number(document.getElementById('workHour').value) || 0
+    let workDayWeek = Number(document.getElementById('workDay').value) || 5
+    let commuteHour = Number(document.getElementById('commuteHour').value) || 0
+    let commuteCostDay = Number(document.getElementById('commuteCost').value) || 0
+    let foodCost = Number(document.getElementById('foodCost').value) || 0
+    let isRent = getSelectVal('isRent')
+    let rent = Number(document.getElementById('rent').value) || 0
+    let otherCost = Number(document.getElementById('otherCost').value) || 0
+    let fishHour = Number(document.getElementById('fishHour').value) || 0
+    let restHour = Number(document.getElementById('restHour').value) || 1.5
+    
+    if (!salary || !workHour) {
+        alert('请填写工资、每日工作时长')
+        return
+    }
+    
+    const monthFactor = 52 / 12
+    let monthWorkHour = workHour * workDayWeek * monthFactor
+    let commuteHourMonth = commuteHour * workDayWeek * monthFactor
+    let commuteCostMonth = commuteCostDay * workDayWeek * monthFactor
+    let foodCostMonth = foodCost * workDayWeek * monthFactor
+    
+    let realIncome = salary - commuteCostMonth - foodCostMonth - rent - otherCost;
+    
+    let hour1 = (salary / monthWorkHour).toFixed(2)
+    let totalHour = monthWorkHour + commuteHourMonth
+    let hour2 = (realIncome / totalHour).toFixed(2)
+    let ratio = salary ? ((commuteCostMonth / salary) * 100).toFixed(1) : '0.0'
+    
+    let score = 0
+    let hourScore = Math.min(30, Math.max(0, hour2 * 1.2))
+    score += hourScore
+    let insurance = getSelectVal('insurance')
+    const insuranceScores = {'没有':0,'五险':5,'五险一金':10}
+    score += insuranceScores[insurance] || 5
+    let jobType = getSelectVal('jobType')
+    const jobScores = {'政府/事业单位':15,'国企/大型企业':13,'外企/守法企业':11,'私企/狼性文化':6,'劳务派遣/OD':3,'自由职业':8}
+    score += jobScores[jobType] || 6
+    let workEnv = getSelectVal('workEnv')
+    const envScores = {'偏僻的工厂/工地/户外':2,'工厂/工地/户外':4,'普通环境':7,'CBD':10}
+    score += envScores[workEnv] || 7
+    let pressure = getSelectVal('pressure')
+    const pressureScores = {'极小':10,'适中':7,'较大':3,'极大':0}
+    score += pressureScores[pressure] || 7
+    let genderRatio = getSelectVal('genderRatio')
+    const genderScores = {'几乎没有':2,'少量':5,'适中':8,'很多':10}
+    score += genderScores[genderRatio] || 5
+    let overtimePay = getSelectVal('overtimePay')
+    score += overtimePay === '有' ? 5 : 0
+    let city = getSelectVal('city')
+    const cityScores = {'一线城市':4,'新一线':5,'二线城市':7,'三线城市':8,'四线城市':9,'县城':10,'乡镇':10}
+    score += cityScores[city] || 7
+    let hometown = getSelectVal('hometown')
+    score += hometown === '在家乡' ? 5 : 2
+    let boss = getSelectVal('boss')
+    const bossScores = {'对我不爽':2,'管理严格':5,'中规中矩':7,'善解人意':10}
+    score += bossScores[boss] || 7
+    let colleague = getSelectVal('colleague')
+    const colleagueScores = {'都是傻逼':2,'萍水相逢':5,'和和睦睦':8,'私交甚好':10}
+    score += colleagueScores[colleague] || 5
+    let earlyWork = getSelectVal('earlyWork')
+    score += earlyWork === '否' ? 3 : 0
+    let overtime = getSelectVal('overtime')
+    const overtimeScores = {'经常':0,'偶尔':3,'从不':5}
+    score += overtimeScores[overtime] || 0
+    let fishScore = Math.min(5, fishHour * 1.25)
+    score += fishScore
+    let restScore = Math.min(5, restHour * 2)
+    score += restScore
+    score += getWelfareScore()
+    
+    if(isRent === '是') score -= 3;
+    
+    score = Math.round(Math.min(100, Math.max(0, score)))
+    
+    document.getElementById('a').innerText = hour1
+    document.getElementById('b').innerText = monthWorkHour.toFixed(1)
+    document.getElementById('c').innerText = hour2
+    document.getElementById('d').innerText = ratio
+    document.getElementById('e').innerText = score
+    
+    let txt = ''
+    if (score >= 85) txt = '🎉 牛马中的人上人！这班还能上！'
+    else if (score >= 70) txt = '😊 普通牛马，凑合过日子吧'
+    else if (score >= 55) txt = '😐 标准牛马，不亏不赚'
+    else if (score >= 40) txt = '😓 纯纯牛马，这班太折磨了'
+    else txt = '💔 顶级牛马，快跑！'
+    
+    document.getElementById('tip').innerText = txt
+}
+
+window.onload = function() {
+    document.getElementById('result').style.display = 'flex';
+}
+</script>
+</body>
+</html>
